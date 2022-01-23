@@ -16,13 +16,15 @@ function App() {
     const [turns,setTurns] = useState(0);
     const [choiceOne,setChoiceOne] = useState(null)
     const [choiceTwo,setChoiceTwo] = useState(null)
-
+    const [disabled, setDisabled] = useState(false)
     //Shuffle cards
     const shuffleCards = () => {
         const shuffledCards = [...cardImages,...cardImages] //double the cards
             .sort(() => Math.random()-0.5)  //shuffling
             .map((card) => ({...card, id: Math.random()}))    //Giving each of them a random id
 
+            setChoiceOne(null)
+            setChoiceTwo(null)
             setCards(shuffledCards);
             setTurns(0);
     }
@@ -35,6 +37,7 @@ function App() {
 
     useEffect(() => {
         if(choiceOne && choiceTwo) {
+            setDisabled(true)
             if(choiceOne.src === choiceTwo.src){
                 setCards((prevCards => {
                     return prevCards.map(card => {
@@ -57,7 +60,12 @@ function App() {
         setChoiceOne(null)
         setChoiceTwo(null)
         setTurns(prevTurns => prevTurns+1)
+        setDisabled(false)
     }
+
+    useEffect(() => {
+        shuffleCards()
+    },[])
     
     return ( 
         <div className = "App">
@@ -66,9 +74,10 @@ function App() {
 
             <div className="card-grid">
                 {cards.map(card => (
-                    <SingleCard key={card.id} handleChoice={handleChoice} card={card} flipped={card === choiceOne || card === choiceTwo || card.matched}/> //3 possibilities when we want to flip the card
+                    <SingleCard key={card.id} handleChoice={handleChoice} card={card} flipped={card === choiceOne || card === choiceTwo || card.matched} disabled={disabled} /> //3 possibilities when we want to flip the card
                 ))}
             </div>
+            <p>Turns: {turns}</p>
         </div>
     );
 }
